@@ -1,14 +1,19 @@
-pub mod permissions;
+mod permissions;
 
+pub use self::permissions::{FileGroup, FileOwner, FilePermissions};
 use crate::util::SerializableDateTime;
 use serde::{Deserialize, Serialize};
 use time::OffsetDateTime;
 
-#[derive(Debug, Default, Copy, Clone, PartialEq, Eq, Serialize, Deserialize, Hash)]
+#[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize, Hash)]
 pub struct Metadata {
+	#[serde(skip_serializing_if = "Option::is_none")]
 	created: Option<SerializableDateTime>,
+	#[serde(skip_serializing_if = "Option::is_none")]
 	updated: Option<SerializableDateTime>,
+	#[serde(skip_serializing_if = "Option::is_none")]
 	accessed: Option<SerializableDateTime>,
+	permissions: FilePermissions,
 	size: u64,
 }
 
@@ -60,6 +65,23 @@ impl Metadata {
 	pub fn with_accessed(self, accessed: impl Into<Option<OffsetDateTime>>) -> Self {
 		Self {
 			accessed: accessed.into().map(SerializableDateTime::from),
+			..self
+		}
+	}
+
+	/// The permissions of this file.
+	/// This is always present.
+	#[inline]
+	pub fn permissions(&self) -> &FilePermissions {
+		&self.permissions
+	}
+
+	/// Duplicates this metadata object,
+	/// updating the permissions with the specified permissions.
+	#[inline]
+	pub fn with_permissions(self, permissions: FilePermissions) -> Self {
+		Self {
+			permissions,
 			..self
 		}
 	}
