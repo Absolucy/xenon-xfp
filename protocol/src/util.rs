@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use std::ops::{Deref, DerefMut};
+use std::ops::Deref;
 use time::{serde::rfc3339, OffsetDateTime};
 
 #[repr(transparent)]
