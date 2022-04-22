@@ -10,4 +10,7 @@ time = { version = "0.3", features = ["serde-well-known"] }
 faccess = "0.2"
 
 [target.'cfg(unix)'.dependencies]
-nix = "0.23"
+nix = "0.24"
+
+[target.'cfg(windows)'.dependencies]
+windows-permissions = "0.2.4"

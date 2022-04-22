@@ -1,10 +1,17 @@
 use faccess::PathExt;
+use serde::{Deserialize, Serialize};
+use std::{io, path::Path};
+
 #[cfg(unix)]
 use nix::unistd::{Gid, Group, Uid, User};
-use serde::{Deserialize, Serialize};
 #[cfg(unix)]
 use std::os::unix::fs::MetadataExt;
-use std::{io, path::Path};
+
+#[cfg(windows)]
+use windows_permissions::{
+	constants::{SeObjectType, SecurityInformation},
+	wrappers::{GetNamedSecurityInfo, LookupAccountSid},
+};
 
 /// Describes the user that owns a file, including their unique identifier
 /// and visible name.
@@ -57,7 +64,6 @@ pub enum FileGroup {
 #[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize, Hash)]
 #[serde(rename_all = "kebab-case")]
 pub struct FilePermissions {
-	read_only: bool,
 	read: bool,
 	write: bool,
 	execute: bool,
@@ -72,8 +78,6 @@ impl FilePermissions {
 	pub fn from_path<P: AsRef<Path>>(path: P) -> io::Result<Self> {
 		let path = path.as_ref();
 		let metadata = path.metadata()?;
-		let mode = metadata.mode();
-		let read_only = mode & 0o200 == 0;
 		let uid = metadata.uid();
 		let owner = User::from_uid(Uid::from_raw(uid))
 			.ok()
@@ -90,7 +94,6 @@ impl FilePermissions {
 				name: group.name,
 			});
 		Ok(Self {
-			read_only,
 			read: path.readable(),
 			write: path.writable(),
 			execute: path.executable(),
@@ -99,19 +102,38 @@ impl FilePermissions {
 		})
 	}
 
-	/// Returns if this this file read-only
-	#[inline]
-	pub fn read_only(&self) -> bool {
-		self.read_only
+	#[cfg(windows)]
+	pub fn from_path<P: AsRef<Path>>(path: P) -> io::Result<Self> {
+		let path = path.as_ref();
+		let info = GetNamedSecurityInfo(
+			path,
+			SeObjectType::SE_FILE_OBJECT,
+			SecurityInformation::Group | SecurityInformation::Owner,
+		)?;
+		let owner = info.owner().map(|sid| {
+			let (domain, name) = LookupAccountSid(sid).unwrap_or_default();
+			FileOwner::Windows {
+				sid: sid.to_string(),
+				domain: domain.to_string_lossy().into_owned(),
+				name: name.to_string_lossy().into_owned(),
+			}
+		});
+		let group = info.group().map(|sid| {
+			let (domain, name) = LookupAccountSid(sid).unwrap_or_default();
+			FileGroup::Windows {
+				sid: sid.to_string(),
+				domain: domain.to_string_lossy().into_owned(),
+				name: name.to_string_lossy().into_owned(),
+			}
+		});
+		Ok(Self {
+			read: path.readable(),
+			write: path.writable(),
+			execute: path.executable(),
+			owner,
+			group,
+		})
 	}
-
-	/// Duplicates this permissions object,
-	/// setting the read-only flag to `read_only`.
-	#[inline]
-	pub fn with_read_only(self, read_only: bool) -> Self {
-		Self { read_only, ..self }
-	}
-
 	/// Returns if this file is readable.
 	#[inline]
 	pub fn read(&self) -> bool {
