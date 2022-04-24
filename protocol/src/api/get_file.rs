@@ -16,7 +16,7 @@
 //! All errors will return a JSON error object, explaining what went wrong in more detail than just the status code.
 //!
 //! Any server which just returns the JSON without the proper status code, or vice versa,
-//! is considered **not** compliant with the protocol.
+//! is **non-compliant** with the protocol.
 //!
 //!  - `401 Unauthorized` - A proper `Authorization` header is required to access this mount or file.
 //!  - `403 Forbidden` - The requested mount or file is not accessible by the current authorized user.

@@ -114,16 +114,24 @@ impl FilePermissions {
 			let (domain, name) = LookupAccountSid(sid).unwrap_or_default();
 			FileOwner::Windows {
 				sid: sid.to_string(),
-				domain: domain.to_string_lossy().into_owned(),
-				name: name.to_string_lossy().into_owned(),
+				domain: domain
+					.into_string()
+					.unwrap_or_else(|osstr| osstr.to_string_lossy().into_owned()),
+				name: name
+					.into_string()
+					.unwrap_or_else(|osstr| osstr.to_string_lossy().into_owned()),
 			}
 		});
 		let group = info.group().map(|sid| {
 			let (domain, name) = LookupAccountSid(sid).unwrap_or_default();
 			FileGroup::Windows {
 				sid: sid.to_string(),
-				domain: domain.to_string_lossy().into_owned(),
-				name: name.to_string_lossy().into_owned(),
+				domain: domain
+					.into_string()
+					.unwrap_or_else(|osstr| osstr.to_string_lossy().into_owned()),
+				name: name
+					.into_string()
+					.unwrap_or_else(|osstr| osstr.to_string_lossy().into_owned()),
 			}
 		});
 		Ok(Self {
@@ -134,7 +142,10 @@ impl FilePermissions {
 			group,
 		})
 	}
+
 	/// Returns if this file is readable.
+	///
+	/// Represented as a bool in JSON, with the key `read`.
 	#[inline]
 	pub fn read(&self) -> bool {
 		self.read
@@ -149,6 +160,8 @@ impl FilePermissions {
 
 	/// Returns if this file is writable.
 	/// This is only true if the file is not read-only.
+	///
+	/// Represented as a bool in JSON, with the key `write`.
 	#[inline]
 	pub fn write(&self) -> bool {
 		self.write
@@ -163,6 +176,8 @@ impl FilePermissions {
 
 	/// Returns if this file is executable.
 	/// This is only true if the file is not read-only.
+	///
+	/// Represented as a bool in JSON, with the key `execute`.
 	#[inline]
 	pub fn execute(&self) -> bool {
 		self.execute
@@ -176,6 +191,8 @@ impl FilePermissions {
 	}
 
 	/// Returns the owner of this file, if any.
+	///
+	/// Represented as an object in JSON, with the key `owner`.
 	#[inline]
 	pub fn owner(&self) -> Option<&FileOwner> {
 		self.owner.as_ref()
@@ -192,6 +209,8 @@ impl FilePermissions {
 	}
 
 	/// Returns the group of this file, if any.
+	///
+	/// Represented as an object in JSON, with the key `group`.
 	#[inline]
 	pub fn group(&self) -> Option<&FileGroup> {
 		self.group.as_ref()

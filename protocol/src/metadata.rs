@@ -19,6 +19,8 @@ pub struct Metadata {
 
 impl Metadata {
 	/// The time the file was created.
+	///
+	/// Represented as a string in RFC 3339 format in JSON, with the key `created`.
 	#[inline]
 	pub fn created(&self) -> Option<OffsetDateTime> {
 		self.created.as_deref().copied()
@@ -35,6 +37,8 @@ impl Metadata {
 	}
 
 	/// The time the file was last updated.
+	///
+	/// Represented as a string in RFC 3339 format in JSON, with the key `updated`.
 	#[inline]
 	pub fn updated(&self) -> Option<OffsetDateTime> {
 		self.updated.as_deref().copied()
@@ -54,6 +58,8 @@ impl Metadata {
 	///
 	/// This may always be `None` on some systems,
 	/// and as such, nothing should rely on this field's presence.
+	///
+	/// Represented as a string in RFC 3339 format in JSON, with the key `accessed`.
 	#[inline]
 	pub fn accessed(&self) -> Option<OffsetDateTime> {
 		self.accessed.as_deref().copied()
@@ -71,6 +77,8 @@ impl Metadata {
 
 	/// The permissions of this file.
 	/// This is always present.
+	///
+	/// Represented as an object in JSON, with the key `permissions`.
 	#[inline]
 	pub fn permissions(&self) -> &FilePermissions {
 		&self.permissions
@@ -87,6 +95,8 @@ impl Metadata {
 	}
 
 	/// The file's size in bytes.
+	///
+	/// Represented as a number in JSON, with the key `size`.
 	#[inline]
 	pub fn size(&self) -> u64 {
 		self.size
