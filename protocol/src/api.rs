@@ -19,3 +19,5 @@ pub mod get_dir;
 pub mod get_file;
 /// GET `/:mount/metadata/:path`
 pub mod get_metadata;
+/// What are mounts, even?
+pub mod mounts;
