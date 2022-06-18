@@ -22,7 +22,7 @@ pub enum FileOwner {
 	Unix {
 		/// The user's unique identifier.
 		uid: u32,
-		#[serde(skip_serializing_if = "String::is_empty")]
+		#[serde(default, skip_serializing_if = "String::is_empty")]
 		/// The user's visible name.
 		name: String,
 	},
@@ -30,10 +30,10 @@ pub enum FileOwner {
 		/// The security identifier (SID) of the user.
 		sid: String,
 		/// The user's domain name.
-		#[serde(skip_serializing_if = "String::is_empty")]
+		#[serde(default, skip_serializing_if = "String::is_empty")]
 		domain: String,
 		/// The user's visible name.
-		#[serde(skip_serializing_if = "String::is_empty")]
+		#[serde(default, skip_serializing_if = "String::is_empty")]
 		name: String,
 	},
 }
@@ -47,17 +47,17 @@ pub enum FileGroup {
 		/// The group's unique identifier.
 		gid: u32,
 		/// The group's visible name.
-		#[serde(skip_serializing_if = "String::is_empty")]
+		#[serde(default, skip_serializing_if = "String::is_empty")]
 		name: String,
 	},
 	Windows {
 		/// The security identifier (SID) of the group.
 		sid: String,
-		#[serde(skip_serializing_if = "String::is_empty")]
+		#[serde(default, skip_serializing_if = "String::is_empty")]
 		/// The group's domain.
 		domain: String,
 		/// The group's visible name.
-		#[serde(skip_serializing_if = "String::is_empty")]
+		#[serde(default, skip_serializing_if = "String::is_empty")]
 		name: String,
 	},
 }
