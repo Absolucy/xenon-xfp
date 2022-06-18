@@ -1,19 +1,22 @@
 mod permissions;
 
 pub use self::permissions::{FileGroup, FileOwner, FilePermissions};
-use crate::util::SerializableDateTime;
 use serde::{Deserialize, Serialize};
-use time::OffsetDateTime;
+use serde_with::{serde_as, skip_serializing_none, DisplayFromStr};
+use time::{format_description::well_known::Rfc3339, OffsetDateTime};
 
+#[serde_as]
+#[skip_serializing_none]
 #[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize, Hash)]
 pub struct Metadata {
-	#[serde(skip_serializing_if = "Option::is_none")]
-	created: Option<SerializableDateTime>,
-	#[serde(skip_serializing_if = "Option::is_none")]
-	updated: Option<SerializableDateTime>,
-	#[serde(skip_serializing_if = "Option::is_none")]
-	accessed: Option<SerializableDateTime>,
+	#[serde_as(as = "Option<Rfc3339>")]
+	created: Option<OffsetDateTime>,
+	#[serde_as(as = "Option<Rfc3339>")]
+	updated: Option<OffsetDateTime>,
+	#[serde_as(as = "Option<Rfc3339>")]
+	accessed: Option<OffsetDateTime>,
 	permissions: FilePermissions,
+	#[serde_as(as = "DisplayFromStr")]
 	size: u64,
 }
 
@@ -23,7 +26,7 @@ impl Metadata {
 	/// Represented as a string in RFC 3339 format in JSON, with the key `created`.
 	#[inline]
 	pub fn created(&self) -> Option<OffsetDateTime> {
-		self.created.as_deref().copied()
+		self.created
 	}
 
 	/// Duplicates this metadata object,
@@ -31,7 +34,7 @@ impl Metadata {
 	#[inline]
 	pub fn with_created(self, created: impl Into<Option<OffsetDateTime>>) -> Self {
 		Self {
-			created: created.into().map(SerializableDateTime::from),
+			created: created.into(),
 			..self
 		}
 	}
@@ -41,7 +44,7 @@ impl Metadata {
 	/// Represented as a string in RFC 3339 format in JSON, with the key `updated`.
 	#[inline]
 	pub fn updated(&self) -> Option<OffsetDateTime> {
-		self.updated.as_deref().copied()
+		self.updated
 	}
 
 	/// Duplicates this metadata object,
@@ -49,7 +52,7 @@ impl Metadata {
 	#[inline]
 	pub fn with_updated(self, updated: impl Into<Option<OffsetDateTime>>) -> Self {
 		Self {
-			updated: updated.into().map(SerializableDateTime::from),
+			updated: updated.into(),
 			..self
 		}
 	}
@@ -62,7 +65,7 @@ impl Metadata {
 	/// Represented as a string in RFC 3339 format in JSON, with the key `accessed`.
 	#[inline]
 	pub fn accessed(&self) -> Option<OffsetDateTime> {
-		self.accessed.as_deref().copied()
+		self.accessed
 	}
 
 	/// Duplicates this metadata object,
@@ -70,7 +73,7 @@ impl Metadata {
 	#[inline]
 	pub fn with_accessed(self, accessed: impl Into<Option<OffsetDateTime>>) -> Self {
 		Self {
-			accessed: accessed.into().map(SerializableDateTime::from),
+			accessed: accessed.into(),
 			..self
 		}
 	}

@@ -1,5 +1,6 @@
 use faccess::PathExt;
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 use std::{io, path::Path};
 
 #[cfg(unix)]
@@ -61,15 +62,14 @@ pub enum FileGroup {
 	},
 }
 
+#[skip_serializing_none]
 #[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize, Hash)]
 #[serde(rename_all = "kebab-case")]
 pub struct FilePermissions {
 	read: bool,
 	write: bool,
 	execute: bool,
-	#[serde(skip_serializing_if = "Option::is_none")]
 	owner: Option<FileOwner>,
-	#[serde(skip_serializing_if = "Option::is_none")]
 	group: Option<FileGroup>,
 }
 

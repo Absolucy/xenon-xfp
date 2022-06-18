@@ -6,4 +6,3 @@ pub mod dir;
 pub mod file;
 /// Protocol details related to file metadata.
 pub mod metadata;
-pub(crate) mod util;

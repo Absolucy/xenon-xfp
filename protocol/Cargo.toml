@@ -8,6 +8,7 @@ authors = ["Lucy <lucy@absolucy.moe>"]
 serde = { version = "1.0", features = ["derive"] }
 time = { version = "0.3", features = ["serde-well-known"] }
 faccess = "0.2"
+serde_with = { version = "1.14.0", features = ["time_0_3"] }
 
 [target.'cfg(unix)'.dependencies]
 nix = "0.24"
